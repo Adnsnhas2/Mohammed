@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Device Information Lookup</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Device Information Lookup</h1>
+  <button onclick="lookupDeviceInformation()">Click to get your device information</button>
+  <div id="result"></div>
+
+  <script>
+    function lookupDeviceInformation() {
+      // Get the user's IP address
+      fetch('https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => {
+          const ipAddress = data.ip;
+
+          // Fetch the user's MAC address
+          fetch('https://api.macaddress.io/v1?output=json&search=ipAddress')
+            .then(response => response.json())
+            .then(data => {
+              const macAddress = data.macAddress;
+
+              // Get the user's device name
+              const userAgent = navigator.userAgent;
+              let deviceName;
+              if (userAgent.includes('Mobile')) {
+                deviceName = 'Mobile Device';
+              } else if (userAgent.includes('Android')) {
+                deviceName = 'Android Device';
+              } else if (userAgent.includes('iPhone')) {
+                deviceName = 'iPhone';
+              } else if (userAgent.includes('iPad')) {
+                deviceName = 'iPad';
+              } else if (userAgent.includes('Windows')) {
+                deviceName = 'Windows Device';
+              } else if (userAgent.includes('Mac')) {
+                deviceName = 'Mac Device';
+              } else {
+                deviceName = 'Unknown Device';
+              }
+
+              // Use a third-party API to get information about the IP address
+              fetch(`https://ipinfo.io/${ipAddress}/json`)
+                .then(response => response.json())
+                .then(data => {
+                  const company = data.org;
+                  const result = `Your IP address is: ${ipAddress}<br>Your MAC address is: ${macAddress}<br>Your device name is: ${deviceName}<br>The company associated with this IP address is: ${company}`;
+                  document.getElementById('result').innerHTML = result;
+                })
+                .catch(error => {
+                  console.error('Error:', error);
+                  document.getElementById('result').innerHTML = 'An error occurred while looking up the IP address information.';
+                });
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              document.getElementById('result').innerHTML = 'An error occurred while getting the MAC address.';
+            });
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          document.getElementById('result').innerHTML = 'An error occurred while getting the IP address.';
+        });
+    }
+  </script>
+</body>
+</html>
